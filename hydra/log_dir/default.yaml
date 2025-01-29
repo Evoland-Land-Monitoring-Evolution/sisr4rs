@@ -1,0 +1,8 @@
+# @package _global_
+
+hydra:
+  run:
+    dir: ${original_work_dir}/checkpoints/${name}/${label}/
+  sweep:
+    dir: ${original_work_dir}/checkpoints/${name}/${label}/
+

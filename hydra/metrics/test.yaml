@@ -1,0 +1,86 @@
+- _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.FFTHFPowerVariation
+    scale_factor: 4.0
+    support: 0.125
+  name : 'fft_hf_power_variation_bicubic'
+  bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+- _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.FFTHFPowerVariation
+    scale_factor: 2.0
+    support: 0.25
+  name : 'fft_hf_power_variation_bicubic'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.FFTHFPowerVariation
+    scale_factor: 1.0
+    support: 0.25
+  name : 'fft_hf_power_variation_target'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.FFTHFPowerVariation
+    scale_factor: 1.0
+    support: 0.125
+  name : 'fft_hf_power_variation_target'
+  bands : ['B5', 'B6', 'B7', 'B8A']
+- _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandTVVariation
+    scale_factor: 4.0
+  name : 'tv_variation_bicubic'
+  bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+- _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandTVVariation
+    scale_factor: 2.0
+  name : 'tv_variation_bicubic'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandTVVariation
+    scale_factor: 1.0
+  name : 'tv_variation_target'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandTVVariation
+    scale_factor: 1.0
+  name : 'tv_variation_target'
+  bands : ['B5', 'B6', 'B7', 'B8A']
+- _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUEVariation
+    scale_factor: 4.0
+  name : 'brisque_variation_bicubic'
+  bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+- _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUEVariation
+    scale_factor: 2.0
+  name : 'brisque_variation_bicubic'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUEVariation
+    scale_factor: 1.0
+  name : 'brisque_variation_target'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.PixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUEVariation
+    scale_factor: 1.0
+  name : 'brisque_variation_target'
+  bands : ['B5', 'B6', 'B7', 'B8A']
+- _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUE
+  name : 'brisque'
+  bands : ['B2', 'B3', 'B4', 'B8']
+- _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+  loss:
+    _target_ : torchsisr.loss.PerBandBRISQUE
+  name : 'brisque'
+  bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']

@@ -1,0 +1,37 @@
+name : 'l2_real_lpips'
+sim_losses: null
+real_losses :
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.MSELoss
+    name : 'l2'
+    bands : ['B2', 'B3', 'B4', 'B8']
+    weight : 1.0
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.MSELoss
+    name : 'l2'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+    weight : 1.0
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : piq.LPIPS
+      dimension_4_needed: True
+    name : 'lpips'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+
+wald_losses:
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.MSELoss
+    name : 'l2'
+    bands : ['B11', 'B12']
+    weight : 1.0

@@ -1,0 +1,23 @@
+discriminator:
+  _target_ : torchsisr.discriminator.Discriminator
+  in_features: 7
+  encoder_latent_features : 64
+  nb_additional_latent_layers: 4
+  head_latent_features : 512
+  pooling_size: 2
+  high_pass_filtering_mtf : 0.4
+  head_nb_additional_latent_layers : 2
+
+optimization_parameters:
+  learning_rate : 0.000001
+  t_0 : 750
+  t_mult : 2
+
+parameters:
+  _target_ : torchsisr.training.AdversarialParameters
+  bands : ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8A']
+  discriminator: ${adversarial.discriminator}
+  optimization: ${adversarial.optimization_parameters}
+  starting_step_discriminator : 2000
+  starting_step_generator : 2000
+  weight: 0.01

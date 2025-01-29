@@ -1,0 +1,34 @@
+ # @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /trainer: default.yaml
+  - override /datamodule: default.yaml
+  - override /model : carn.yaml
+  - override /training_module : default.yaml
+  - override /adversarial : default.yaml
+name: profiling
+
+datamodule:
+  single_site_config:
+    load_b11b12 : True
+
+adversarial:
+  parameters:
+    starting_step: 0
+
+model:
+  config:
+    nb_bands: 10
+
+training_module:
+  config:
+    wald: ${training_module.wald_parameters}
+
+trainer:
+  profiler: "pytorch"
+  max_steps: 20
+  val_check_interval: 5
+  limit_val_batches: 5

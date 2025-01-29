@@ -1,0 +1,31 @@
+name: "s2v2x2"
+number_of_bands : 4
+
+single_site_config:
+  _target_ : torchsisr.dataset.Sen2VnsSingleSiteDatasetConfig
+  load_20m_data : False
+  load_10m_data : True
+  load_b11b12: False
+
+config:
+  _target_: torchsisr.dataset.Sen2VnsDataModuleConfig
+
+  dataset_folder: ${location.sen2venus_dataset_folder}
+
+  # Only sites with more than 2000 patches
+  sites : ['K34-AMAZ', 'ATTO', 'BAMBENW2', 'FR-LQ1', 'ANJI', 'ARM', 'ALSACE', 'ESGISB-2' ]
+  testing_sites : ['MAD-AMBO', 'ES-IC3XG']
+  single_site_config: ${datamodule.single_site_config}
+  max_patches_per_site: 2000
+  batch_size: 8
+  testing_validation_batch_size : 64
+  validation_ratio : 0.05
+  train_ratio : 0.95
+  num_workers : 10
+  cache_validation_dataset : False
+  cache_testing_dataset : False
+  prefetch_factor : 4
+
+data_module:
+  _target_ : torchsisr.dataset.Sen2VnsDataModule
+  config : ${datamodule.config}

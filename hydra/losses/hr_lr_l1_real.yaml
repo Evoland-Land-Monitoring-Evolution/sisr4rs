@@ -1,0 +1,66 @@
+name: hr_lr_l1_real
+real_losses:
+  - _target_ : torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 2.0
+      mtf : 0.4
+    name: 'lr_l1'
+    bands: ['B2', 'B3', 'B4', 'B8']
+    weight : 0.1
+  - _target_ : torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 4.0
+      mtf : 0.4
+    name: 'lr_l1'
+    bands: ['B5', 'B6', 'B7', 'B8A']
+    weight : 0.1
+  - _target_ : torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 4.0
+      mtf : 0.4
+    name: 'lr_l1'
+    bands: ['B11', 'B12']
+    weight : 0.1
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 2.0
+      mtf : 0.4
+    name : 'hr_l1'
+    bands : ['B2', 'B3', 'B4', 'B8']
+    weight : 0.9
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 4.0
+      mtf : 0.4
+    name : 'hr_l1'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+    weight : 0.9
+
+sim_losses : ${losses.real_losses}
+
+wald_losses:
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      loss:
+        _target_ : torch.nn.SmoothL1Loss
+      factor : 4.0
+      mtf : 0.4
+    name : 'hr_l1'
+    bands : ['B11', 'B12']
+    weight : 0.9

@@ -1,0 +1,55 @@
+optimization_parameters:
+    learning_rate : 0.0002
+    t_0 : 750
+    t_mult : 2
+
+
+bands : ['B2', 'B3', 'B4', 'B8','B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+
+standardization_parameters:
+  _target_ : torchsisr.training.StandardizationParameters
+  bands : ${training_module.bands}
+  mean: [0.0478, 0.0765, 0.0893, 0.2622, 0.1253, 0.2182, 0.2524, 0.2815, 0.2472, 0.1665]
+  std : [0.0289, 0.0400, 0.0679, 0.0811, 0.0615, 0.0645, 0.0772, 0.0820, 0.1196, 0.1160]
+
+batch_simulation_parameters:
+  _target_ : torchsisr.training.BatchSimulationParameters
+  mtf_min : 0.3
+  mtf_max : 0.7
+  noise_multiplier_min: 2.
+  noise_multiplier_max: 3.
+  noise_std: [0.000578, 0.0008  , 0.001358, 0.001622, 0.00123 , 0.00129 ,
+       0.001544, 0.00164 ]
+
+wald_parameters:
+  _target_ : torchsisr.training.WaldParameters
+  losses : ${losses.wald_losses}
+  validation_metrics: ${metrics.wald_validation_metrics}
+  test_metrics: ${metrics.wald_test_metrics}
+  validation_margin : 32
+  mtf_min : 0.3
+  mtf_max : 0.7
+  noise_multiplier_min: 2.
+  noise_multiplier_max: 3.
+
+  noise_std : [0.00040749, 0.000564, 0.00095739, 0.00114351,0.0012226815, 0.0012823245, 0.0015348132, 0.001630242, 0.0023777676, 0.002306196]
+  pad_to_input_size : True
+
+config:
+  _target_ : torchsisr.training.DoubleSISRTrainingModuleConfig
+  model : ${model.model}
+  optimization: ${training_module.optimization_parameters}
+  standardization: ${training_module.standardization_parameters}
+  batch_simulation: ${training_module.batch_simulation_parameters}
+  adversarial: ${adversarial.parameters}
+  real_losses : ${losses.real_losses}
+  sim_losses : ${losses.sim_losses}
+  validation_metrics: ${metrics.validation_metrics}
+  test_metrics: ${metrics.test_metrics}
+  wald : ${training_module.wald_parameters}
+  validation_margin: 64
+  align_min_max : True
+
+training_module:
+  _target_ : torchsisr.training.DoubleSISRTrainingModule
+  config : ${training_module.config}

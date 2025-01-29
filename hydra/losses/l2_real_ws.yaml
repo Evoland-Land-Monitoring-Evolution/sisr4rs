@@ -1,0 +1,13 @@
+name : 'l2_real'
+sim_losses: null
+real_losses :
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.MSELoss
+    name : 'l2'
+    bands : ['B2', 'B3', 'B4', 'B8']
+    weight : 1.0
+
+wald_losses: null

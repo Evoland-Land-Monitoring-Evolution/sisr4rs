@@ -1,0 +1,20 @@
+config:
+    _target_ : torchsisr.carn.CARNConfig
+    nb_bands: ${datamodule.number_of_bands}
+    groups: 4
+    shared_weights: True
+    nb_features_per_factor: 64
+    upsampling_factor: 2.
+    nb_cascading_blocks: 3
+    nb_eres_blocks_per_cascading_block : 3
+    kernel_size: 3
+
+generator:
+  _target_ : torchsisr.carn.CARN
+  config : ${model.config}
+
+model:
+  _target_ : torchsisr.double_sisr_model.DoubleSuperResolutionModel
+  sisr_model: ${model.generator}
+
+name: carn_${model.config.nb_cascading_blocks}x${model.config.nb_eres_blocks_per_cascading_block}x${model.config.nb_features_per_factor}g${model.config.groups}sw${model.config.shared_weights}

@@ -1,0 +1,14 @@
+generator:
+  _target_ : torchsisr.esrgan.ESRGANGenerator
+  nb_bands: ${datamodule.number_of_bands}
+  upsampling_factor: 2.
+  latent_size: 64
+  growth_channels: 32
+  num_basic_blocks: 3 # With 3 we can not perform wald step
+  residual_scaling : 0.2
+
+model:
+  _target_ : torchsisr.double_sisr_model.DoubleSuperResolutionModel
+  sisr_model: ${model.generator}
+
+name: esrgan_${model.generator.num_basic_blocks}x${model.generator.latent_size}x${model.generator.growth_channels}

@@ -1,0 +1,305 @@
+#+TITLE: Single Image Super-Resolution for HR remote-sensing sensors
+
+This repository holds models and training scripts related to the following:
+
+- [[https://github.com/Evoland-Land-Monitoring-Evolution/sentinel2_superresolution][sentinel2_superresolution]] tool: Generate 5m super-resolved images from Sentinel-2 L2A (Theia) products (bands B02, B03, B04, B05, B06, B07, B08, B8A, B11 and B12) using Single Image Super-Resolution model trained in the frame of the [[https://www.evo-land.eu/][EVOLAND Horizon Europe]].
+- Experiments conducted in [[https://hal.science/hal-04723225v1][Julien Michel, Ekaterina Kalinicheva, Jordi Inglada. "Revisiting remote sensing cross-sensor Single Image Super-Resolution: the overlooked impact of geometric and radiometric distortion". 2024.]]
+
+#+begin_src bibtex
+@unpublished{michel:hal-04723225,
+  TITLE = {{Revisiting remote sensing cross-sensor Single Image Super-Resolution: the overlooked impact of geometric and radiometric distortion}},
+  AUTHOR = {Michel, Julien and Kalinicheva, Ekaterina and Inglada, Jordi},
+  URL = {https://hal.science/hal-04723225},
+  NOTE = {Submitted to IEEE Transactions on Geoscience and Remote Sensing.This work was partly performed using HPC resources from GENCI-IDRIS (Grant 2023-AD010114835)This work was partly performed using HPC resources from CNES Computing Center.},
+  YEAR = {2024},
+  MONTH = Oct,
+  PDF = {https://hal.science/hal-04723225v1/file/tgrs_michel_double.pdf},
+  HAL_ID = {hal-04723225},
+  HAL_VERSION = {v1},
+}
+#+end_src
+
+* Table of contents                                                     :TOC:
+- [[#getting-started][Getting started]]
+  - [[#installation][Installation]]
+  - [[#project-layout][Project Layout]]
+  - [[#hydra-configuration][Hydra configuration]]
+  - [[#code-quality][Code Quality]]
+- [[#datasets][Datasets]]
+  - [[#support-data][Support data]]
+  - [[#sen2venµs-dataset][Sen2Venµs dataset]]
+  - [[#worldstrat-dataset][Worldstrat dataset]]
+- [[#running-the-experiments][Running the experiments]]
+  - [[#how-it-works][How it works]]
+  - [[#training-the-sentinel2_superresolution-model][Training the ~sentinel2_superresolution~ model]]
+  - [[#reproducing-results-of-hal-04723225][Reproducing results of ~hal-04723225~]]
+  - [[#computing-metrics-on-testing-set][Computing metrics on testing set]]
+  - [[#exporting-model-to-onnx-for-use-in-the-sentinel2_superresolution-tool][Exporting model to onnx for use in the sentinel2_superresolution tool]]
+- [[#contributors][Contributors]]
+- [[#credits][Credits]]
+
+* Getting started
+** Installation
+
+This project uses [[https://pixi.sh][pixi]] as package manager and project configuration tool. Install =pixi= like this:
+
+#+begin_src shell
+curl -fsSL https://pixi.sh/install.sh | bash
+#+end_src
+
+Clone the =torchsisr= sources like this:
+#+begin_src shell
+git clone https://src.koda.cnrs.fr/julien.michel.14/torchsisr.git
+#+end_src
+
+And use =pixi= to install the project and its dependencies:
+
+#+begin_src shell
+cd torchsisr
+pixi install
+#+end_src
+
+** Project Layout
+
+The project is organised into the following sub-folders:
+
+- ~torchsisr~ : python modules used in the project,
+- ~hydra~ : hydra configuration to run the experiments,
+- ~bin~ : main training, testing and model exporting scripts,
+- ~slurm~ : sample slurm job files to run the training on a slurm-based infrastructure,
+- ~scripts~ :  additional scripts for post-processing and analysis,
+- ~tests~ :  ~pytest~ tests of the ~torchsisr~ module.
+
+Note that code for the proposed Frequency Domain Analysis based metrics can be found in file:torchsisr/fda.py.
+
+** Hydra configuration
+
+All experiments are configured using ~hydra~.
+- The main entry point is [[file:hydra/main.yaml]],
+- [[file:hydra/location/]] holds path to datasets and result, and should be updated with your own informations,
+- [[file:hydra/experiment/]] holds one yaml file per experiment,
+- [[file:hydra/datamodule/]] holds configuration of the different datasets,
+- [[file:hydra/model/]] holds the configuration of the different models
+- [[file:hydra/trainer/]] holds the main training parameters (number of epochs, number of validation steps, etc)
+
+
+Other sub-folders are dedicated to specific parts (callbacks for checkpointing, metrics and losses, etc)
+
+** Code Quality
+
+Code quality related tools are provided in a dedicated ~pixi~ environment:
+
+#+begin_src shell
+pixi shell -e dev
+#+end_src
+
+Makefile targets are provided to run the code quality tools easily. Here are some of the most useful targets.
+
+*** pytest
+This code uses ~pytest~. Two targets are provided.
+
+To run only the tests that do not require any data, do:
+#+begin_src shell
+make pytest-fast
+#+end_src
+
+To run the full extent of tests, do:
+#+begin_src shell
+export SEN2VENUS_PATH=/path/to/sen2venus/dataset
+make pytest-full
+#+end_src
+
+*** mypy
+
+This code is fully typed with ~typehints~ and is ~mypy~ correct. To statically check type-correctness, use:
+
+#+begin_src shell
+make mypy
+#+end_src
+
+*** pylint
+
+This code uses ~pylint~ and is currently rated 9.91%. To check code quality with ~pylint~, do:
+
+#+begin_src shell
+make pylint
+#+end_src
+
+* Datasets
+
+Before running any training, one has to download the datasets used for training.
+
+** Support data
+
+Support data from ~michel:hal-04723225~ can be downloaded on zenodo: [[https://zenodo.org/records/14734095][https://zenodo.org/records/14734095]].
+
+They include:
+- *wsx2* and *wsx4* dataset generated from the [[Worldstrat dataset]],
+- Pretrained registration models to be used in main training, for all cases studied in the paper
+- Trained super-resolution models for all experiments,
+- ONNX-exported models for all experiments, that can directly be used with the [[https://github.com/Evoland-Land-Monitoring-Evolution/sentinel2_superresolution][sentinel2_superresolution]] tool.
+
+** Sen2Venµs dataset
+
+*Sen2Venµs* is a dataset comprising Sentinel-2 (10m and 20m) and Venµs (5m) same-day acquisitions, described in the following paper:
+
+#+begin_src bibtex
+@article{michel-2022-sen2v-s,
+  author =	 {Julien Michel and Juan Vinasco-Salinas and Jordi
+                  Inglada and Olivier Hagolle},
+  title =	 {SEN2VEN$\mu$S, a Dataset for the Training of
+                  {Sentinel-2} Super-Resolution Algorithms},
+  journal =	 {Data},
+  volume =	 7,
+  number =	 7,
+  pages =	 96,
+  year =	 2022,
+  doi =		 {10.3390/data7070096},
+  url =		 {http://dx.doi.org/10.3390/data7070096},
+  DATE_ADDED =	 {Thu Mar 2 15:01:48 2023},
+}
+#+end_src
+
+*Sen2Venµs* can be downloaded at https://zenodo.org/records/14603764. Be sure to download version 2.0.0. Zip file for each site should be extract to the same folder. No additional processing is required.
+
+** Worldstrat dataset
+
+Experiments presented in [[#reproduce-hal-04723225][Reproduce ~hal-04723225~]] make also use of the *Worldstrat* dataset, which can be downloaded from https://zenodo.org/records/6810792 .
+
+#+begin_src bibtex
+@inproceedings{NEURIPS2022_a6fe9956,
+ author = {Cornebise, Julien and Or\v{s}oli\'{c}, Ivan and Kalaitzis, Freddie},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {S. Koyejo and S. Mohamed and A. Agarwal and D. Belgrave and K. Cho and A. Oh},
+ pages = {25979--25991},
+ publisher = {Curran Associates, Inc.},
+ title = {{Open High-Resolution Satellite Imagery: The WorldStrat Dataset \textendash  With Application to Super-Resolution}},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2022/file/a6fe99561d9eb9c90b322afe664587fd-Paper-Datasets_and_Benchmarks.pdf},
+ volume = {35},
+ year = {2022}
+}
+#+end_src
+
+In order to reproduce the results, the *Worldstrat* dataset must be further processed in order to form pairs of *x2* and *x4* patches of Spot6/7 and Sentinel-2 images with a limited acquisition time difference (see appendix B of the paper). This is achieved by the [[file:scripts/generate_worldstrat_dataset.py][following script]].
+
+Generated datasets are available in the [[Support data]].
+
+* Running the experiments
+** How it works
+
+Directory [[file:hydra/experiment/]] holds one yaml file per experiment. They can be passed to the file:bin/train.py training script by using the ~experiment=~ switch. Outputs of the training are located in a sub-directory of the ~output_folder~ variable defined in file:hydra/location/ configuration. Default is ~env.yaml~, which look for the ~OUTPUT_FOLDER~ environment variable. It also requires environment variable to set the dataset path (~SEN2VENUS_DATASET_PATH~, ~WORLDSTRATX4_DATASET_PATH~, ~WORLDSTRATX2_DATASET_PATH~).
+
+Feel free to add your own yaml file to specify your paths in the file:hydra/location folder. You can then override location in the training script by using the ~location=mylocation~ switch.
+
+the file:bin/train.py script can be run directly from the command-line, but if you are running on a HPC using ~slurm~, sample script for slurm jobs can be found in file:slurm.
+
+You can find the complete output folder in the experiment yaml file. This folder cotains the following sub-folders:
+- ~checkpoints~ : contains the checkpoint generated by the file:hydra/callbacks/. It also contains the dump of the full hydra configuration in ~.hydra/config.yaml~ for each version.
+- ~tb_logs~ : contains the ~tensorboard~ logs. Display the logs by installing ~tensorboard~ and running ~tensorboard --logdir tb_logs/~
+- ~csv_logs~ : contains the same logs as ~csv~ files
+
+** Training the ~sentinel2_superresolution~ model
+
+You can run the training of the ~sentinel2_superresolution~ full model as follows:
+#+begin_src shell
+$ PYTHONOPTIMIZE=TRUE ./train.py experiment=train_sentinel2_superresolution
+#+end_src
+
+** Reproducing results of ~hal-04723225~
+*** Metrics benchmark
+
+The metrics benchmark can be reproduced by running the file:bin/benchmark_metrics.py script:
+#+begin_src shell
+$ ./benchmark_metrics.py --dataset /path/to/sen2venus/dataset --output /path/to/output/folder
+#+end_src
+
+
+*** Training the registration network
+
+The registration network can be pre-trained using the following experiments:
+
+| *Description*                  | *Training script args*                   |
+|--------------------------------+------------------------------------------|
+| For the sen2venµs x2 datasets  | ~experiment=pretrain_registration_s2vx2~ |
+| For the sen2venµs x4 datasets  | ~experiment=pretrain_registration_s2vx4~ |
+| For the worldstrat x2  dataset | ~experiment=pretrain_registration_wsx2~  |
+| For the worldstrat x4  dataset | ~experiment=pretrain_registration_wsx2~  |
+
+Note that pre-trained registration models are available in the [[Support data]].
+
+*** Replay experiments
+
+This is the full table to replay all experiments of ~hal-04723225~:
+
+| *dataset* | *experiment* | *Training script args*                                                                                               |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *s2v1x2*  | *baseline*   | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v1x2 training_module.config.training_geometric_registration=True~ |
+|           | *geom*       | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v1x2 training_module.config.training_geometric_registration=True~ |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v1x2 training_module.config.training_geometric_registration=True~ |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *s2v2x2*  | *baseline*   | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v2x2 training_module.config.training_geometric_registration=True~ |
+|           | *geom*       | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v2x2 training_module.config.training_geometric_registration=True~ |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_s2vx2 datamodule=s2v2x2 training_module.config.training_geometric_registration=True~ |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *s2v1x4*  | *baseline*   | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v1x4 training_module.config.training_geometric_registration=True~ |
+|           | *geom*       | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v1x4 training_module.config.training_geometric_registration=True~ |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v1x4 training_module.config.training_geometric_registration=True~ |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *s2v2x4*  | *baseline*   | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v2x4 training_module.config.training_geometric_registration=True~ |
+|           | *geom*       | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v2x4 training_module.config.training_geometric_registration=True~ |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_s2vx4 datamodule=s2v2x4 training_module.config.training_geometric_registration=True~ |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *wsx4*    | *baseline*   | ~experiments=cross_sensor_paper_wsx4 training_module.config.training_geometric_registration=True~                    |
+|           | *geom*       | ~experiments=cross_sensor_paper_wsx4 training_module.config.training_geometric_registration=True~                    |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_wsx4 training_module.config.training_geometric_registration=True~                    |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+| *wsx2*    | *baseline*   | ~experiments=cross_sensor_paper_wsx2 training_module.config.training_geometric_registration=True~                    |
+|           | *geom*       | ~experiments=cross_sensor_paper_wsx2 training_module.config.training_geometric_registration=True~                    |
+|           | *geom+rad*   | ~experiments=cross_sensor_paper_wsx2 training_module.config.training_geometric_registration=True~                    |
+|           |              | ~training_module.config.training_radiometric_registration=True~                                                      |
+|-----------+--------------+----------------------------------------------------------------------------------------------------------------------|
+
+Note that trained registration models for all experiments are available in the [[Support data]].
+
+** Computing metrics on testing set
+
+The metrics specified in file:hydra/metrics/ can be computed on the testing set, using the file:bin/test.py:
+
+#+begin_src shell
+$ ./test.py --checkpoint /path/to/checkpoint.ckpt --config_overrides experiment=cross_sensor_paper_s2vx2 datamodule=s2v1x2
+#+end_src
+
+Results can be found in the ~test_logs~ folder of the output folder. File ~metrics.csv~ contains the testing metrics, while ~images~ folder contains mosaic of sample predictions.
+
+** Exporting model to onnx for use in the [[https://github.com/Evoland-Land-Monitoring-Evolution/sentinel2_superresolution][sentinel2_superresolution]] tool
+
+The file:bin/export_to_onnx.py script can be used to export models so
+that they can be plugged into the [[https://github.com/Evoland-Land-Monitoring-Evolution/sentinel2_superresolution][sentinel2_superresolution]] tool.
+
+This can be achieved by running the following command:
+
+#+begin_src shell
+./export_to_onnx.py --checkpoint /path/to/checkpoint.ckpt --config_overrides experiment=cross_sensor_paper_s2vx2 datamodule=s2v1x2
+#+end_src
+
+Upon completion, the script generates a ~*.onnx~ file and a ~*.yaml~ file along side the ~*.ckpt~ file. You can move those file together wherever you like, and pass the ~*.yaml~ file to the ~-m~ switch of  [[https://github.com/Evoland-Land-Monitoring-Evolution/sentinel2_superresolution][sentinel2_superresolution]] (> 1.0.0).
+
+* Contributors
+- Julien MICHEL (CESBIO)
+- Ekaterina KALINICHEVA (CESBIO)
+- Juan VINASCO SALINAS (CESBIO)
+
+* Credits
+
+- This work was partly performed using HPC resources from GENCI-IDRIS
+  (Grant 2023-AD010114835)
+- This work was partly performed using HPC resources from CNES.
+- The authors acknowledge funding from the EvoLand project (Evolution
+  of the Copernicus Land Service portfolio, grant agreement
+  No 101082130) funded from the European Union's Horizon Europe
+  research and innovation programme.

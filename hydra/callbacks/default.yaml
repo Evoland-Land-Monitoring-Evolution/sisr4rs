@@ -1,0 +1,40 @@
+checkpoint1:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  monitor: "validation_losses/total_loss" # name of the logged metric which determines when model is improving
+  mode: "min" # "max" means higher metric value is better, can be also "min"
+  save_top_k: 1 # save k best models (determined by above metroic)
+  save_last: True # additionaly always save model from last epoch
+  verbose: True
+  dirpath: ${original_work_dir}/checkpoints/${name}/${label}/
+  filename: "{step:04d}_val_total_loss={validation_losses/total_loss:.8f}"
+  auto_insert_metric_name: False
+checkpoint2:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  monitor: "validation_real_metrics/brisque_average" # name of the logged metric which determines when model is improving
+  mode: "min" # "max" means higher metric value is better, can be also "min"
+  save_top_k: 1 # save k best models (determined by above metric)
+  save_last: True # additionaly always save model from last epoch
+  verbose: True
+  dirpath: ${original_work_dir}/checkpoints/${name}/${label}/
+  filename: "{step:04d}_brisque_average={validation_real_metrics/brisque_average:.2f}"
+  auto_insert_metric_name: False
+checkpoint3:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  every_n_train_steps: 500
+  save_last: True # additionaly always save model from last epoch
+  verbose: True
+  dirpath: ${original_work_dir}/checkpoints/${name}/${label}/
+  filename: "{step:04d}_auto"
+  auto_insert_metric_name: False
+
+lr_monitor:
+  _target_ : pytorch_lightning.callbacks.LearningRateMonitor
+  logging_interval : 'step'
+
+model_summary:
+  _target_: pytorch_lightning.callbacks.RichModelSummary
+  max_depth: -1
+
+rich_progress_bar:
+  _target_: pytorch_lightning.callbacks.RichProgressBar
+  leave : True

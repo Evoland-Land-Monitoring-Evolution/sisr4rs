@@ -1,0 +1,5 @@
+sen2venus_dataset_folder : '/work/CESBIO/projects/RELEO/datasets/sen2venus_v2'
+worldstrat_x4_dataset_folder : '/work/CESBIO/projects/SentinelHR/cross_sensor_sisr_paper_support_data/datasets/worldstrat_x4/index.csv'
+worldstrat_x2_dataset_folder : '/work/CESBIO/projects/SentinelHR/cross_sensor_sisr_paper_support_data/datasets/worldstrat_x2/index.csv'
+pretrained_registration_models_folder : '/work/CESBIO/projects/SentinelHR/cross_sensor_sisr_paper_support_data/pretrained_registration_models'
+output_folder : '/work/scratch/data/${oc.env:USER}/rs-sisr'

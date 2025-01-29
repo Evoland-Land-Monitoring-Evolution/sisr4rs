@@ -1,0 +1,2 @@
+sen2venus_dataset_folder : '${oc.env:WORK}/data/sen2vns_patches_extended'
+output_folder : '${oc.env:WORK}/results/sisrs-prod-a100-v2'

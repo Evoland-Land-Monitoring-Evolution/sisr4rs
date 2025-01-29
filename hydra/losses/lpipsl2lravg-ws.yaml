@@ -1,0 +1,23 @@
+name : 'lpipsl2lravg'
+sim_losses: null
+real_losses :
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : piq.LPIPS
+      dimension_4_needed: True
+    name : 'lpips'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_ : torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.MSELoss
+      factor : 4.0
+      mtf : 0.4
+      downsampling_mode: "area"
+    name: 'lr_l2_avg'
+    bands: ['B2', 'B3', 'B4', 'B8']
+
+wald_losses: null

@@ -1,0 +1,31 @@
+name : 'l1l2lr'
+sim_losses: null
+real_losses :
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.L1Loss
+      dimension_4_needed: True
+    name : 'l1'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+  - _target_ : torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.MSELoss
+      factor : 2.0
+      mtf : 0.4
+    name: 'lr_l2'
+    bands: ['B2', 'B3', 'B4', 'B8']
+  - _target_ : torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_: torchsisr.loss.LRFidelity
+      loss:
+        _target_ : torch.nn.MSELoss
+      factor : 4.0
+      mtf : 0.4
+    name: 'lr_l2'
+    bands: ['B5', 'B6', 'B7', 'B8A']
+
+wald_losses: null

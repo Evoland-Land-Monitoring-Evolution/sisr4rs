@@ -1,0 +1,21 @@
+sim_losses: null
+real_losses :
+  - _target_ : torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torch.nn.MSELoss
+    name : 'l2'
+    bands : ${training_module.bands}
+    weight : 0.1
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : piq.LPIPS
+        mean: [0.,0.,0.]
+        std: [1.,1.,1.]
+      dimension_4_needed: True
+    name : 'lpips'
+    bands : ${training_module.bands}
+wald_losses: null

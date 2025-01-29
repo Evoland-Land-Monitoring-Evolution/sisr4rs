@@ -1,0 +1,11 @@
+name: "wsx2"
+number_of_bands : 4
+
+data_module:
+  _target_ : torchsisr.dataset.WorldStratDataModule
+  dataset_index_path : ${location.worldstrat_x2_dataset_folder}
+  batch_size : 16
+  min_correlation: 0.2
+  testing_validation_batch_size: 16
+  num_workers: 10
+  prefetch_factor: 4

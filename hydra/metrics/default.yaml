@@ -1,0 +1,192 @@
+validation_metrics :
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torchsisr.loss.PeakSignalNoiseRatio
+        data_range : 1.0
+    name : 'psnr'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.LRFidelity
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+      factor: 2.0
+      mtf : 0.1
+    name : 'lr_rmse'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.LRFidelity
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+      factor: 4.0
+      mtf : 0.1
+    name : 'lr_rmse'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      factor : 2.0
+      mtf : 0.1
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+    name : 'hr_rmse'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      factor : 4.0
+      mtf : 0.1
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+    name : 'hr_rmse'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.GradientStrataWrapper
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+      grad_mag_min : 0.006770164705812931
+      grad_mag_max : 1.7976931348623157e+308
+    name : 'high_grad_strata_rmse'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.LRFidelity
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+      factor : 4.0
+      mtf : 0.1
+    name : 'lr_rmse'
+    bands : ['B11', 'B12']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      dimension_4_needed : True
+      loss:
+        _target_ : torchmetrics.image.StructuralSimilarityIndexMeasure
+        data_range : 1.0
+    name : 'ssim'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.FFTHFPowerVariation
+      scale_factor: 4.0
+      support: 0.125
+    name : 'fft_hf_power_variation_bicubic'
+    bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.FFTHFPowerVariation
+      scale_factor: 2.0
+      support: 0.25
+    name : 'fft_hf_power_variation_bicubic'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.FFTHFPowerVariation
+      scale_factor: 1.0
+      support: 0.25
+    name : 'fft_hf_power_variation_target'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.FFTHFPowerVariation
+      scale_factor: 1.0
+      support: 0.125
+    name : 'fft_hf_power_variation_target'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandTVVariation
+      scale_factor: 4.0
+    name : 'tv_variation_bicubic'
+    bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandTVVariation
+      scale_factor: 2.0
+    name : 'tv_variation_bicubic'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandTVVariation
+      scale_factor: 1.0
+    name : 'tv_variation_target'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandTVVariation
+      scale_factor: 1.0
+    name : 'tv_variation_target'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUEVariation
+      scale_factor: 4.0
+    name : 'brisque_variation_bicubic'
+    bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUEVariation
+      scale_factor: 2.0
+    name : 'brisque_variation_bicubic'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUEVariation
+      scale_factor: 1.0
+    name : 'brisque_variation_target'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUEVariation
+      scale_factor: 1.0
+    name : 'brisque_variation_target'
+    bands : ['B5', 'B6', 'B7', 'B8A']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUE
+    name : 'brisque'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.AgainstLRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUE
+    name : 'brisque'
+    bands : ['B5', 'B6', 'B7', 'B8A', 'B11', 'B12']
+
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandDSS
+    name : 'dss'
+    bands : ['B2', 'B3', 'B4', 'B8', 'B5', 'B6', 'B7', 'B8A']
+
+wald_validation_metrics:
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : torchsisr.loss.PeakSignalNoiseRatio
+        data_range : 1.0
+    name : 'psnr'
+    bands : ['B11', 'B12']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.HRFidelity
+      factor: 4.0
+      mtf : 0.1
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+    name : 'hr_rmse'
+    bands : ['B11','B12']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandDSS
+    name : 'dss'
+    bands : ['B11', 'B12']
+
+
+test_metrics : ${metrics.validation_metrics}
+wald_test_metrics : ${metrics.wald_validation_metrics}

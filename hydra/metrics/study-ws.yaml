@@ -1,0 +1,46 @@
+validation_metrics : null
+
+wald_validation_metrics: null
+
+test_metrics :
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.LRFidelity
+      loss:
+        _target_: torchsisr.loss.RMSELoss
+      factor: 4.0
+      mtf : 0.1
+    name : 'lr_rmse'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : piq.PieAPP
+        data_range : 1.0
+      dimension_4_needed: True
+      clip: [0., 1.]
+    name : 'pieapp'
+    bands : ['B2', 'B3', 'B4', 'B8']
+
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandWrapper
+      loss:
+        _target_ : piq.LPIPS
+      dimension_4_needed: True
+    name : 'lpips'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.AgainstHRInputPixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandBRISQUE
+    name : 'brisque'
+    bands : ['B2', 'B3', 'B4', 'B8']
+  - _target_: torchsisr.loss_helper.PixelLossWrapper
+    loss:
+      _target_ : torchsisr.loss.PerBandTVVariation
+      scale_factor: 1.0
+    name : 'tv_variation_target'
+    bands : ['B2', 'B3', 'B4', 'B8']
+
+wald_test_metrics : ${metrics.wald_validation_metrics}

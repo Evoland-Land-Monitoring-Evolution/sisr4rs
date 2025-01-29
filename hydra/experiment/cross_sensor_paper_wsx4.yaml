@@ -1,0 +1,46 @@
+ # @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: wsx4.yaml
+  - override /training_module : worldstrat.yaml
+  - override /metrics: study.yaml
+  - override /model: esrgan.yaml
+  - override /adversarial : unet.yaml
+  - override /losses: study.yaml
+
+trainer:
+  max_epochs: 400
+  val_check_interval: 1.0
+
+adversarial:
+  optimization_parameters:
+    learning_rate : 0.0001
+    t_0 : 6000
+  discriminator:
+      num_in_ch : 4
+      num_feat: 32
+      high_pass_filtering_mtf: null
+  parameters:
+    starting_step_discriminator: 1340
+    starting_step_generator: 1340
+    mode : "DRA_BCE"
+    real_label_smoothing: 0.1
+    weight : 0.005
+    bands : ['B2', 'B3', 'B4', 'B8']
+
+model:
+  generator:
+    upsampling_factor: 4.
+    num_basic_blocks: 6
+  model:
+    lr_to_hr_model: null
+
+load_registration_checkpoint: ${location.pretrained_registration_models_folder}/wsx4_registration_model.ckpt
+    
+seed: 42
+original_work_dir: ${location.output_folder}/xsensor_paper/
+label: spat${training_module.config.training_geometric_registration}_rad${training_module.config.training_radiometric_registration}
+name: ${datamodule.name}_${model.name}

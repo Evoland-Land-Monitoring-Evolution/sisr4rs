@@ -1,0 +1,17 @@
+ # @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /losses : l1_sim.yaml
+
+trainer:
+  max_epochs: 20
+
+training_module:
+  config:
+    adversarial : null
+
+original_work_dir: ${location.output_folder}/rs-sisr/s2_sisr/
+seed: 42

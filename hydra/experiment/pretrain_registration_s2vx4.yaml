@@ -1,0 +1,32 @@
+ # @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /training_module : sen2venusx4.yaml
+  - override /callbacks : pretrain_registration.yaml
+  - override /datamodule : s2v1x4.yaml
+
+trainer:
+  limit_train_batches: 1340
+  max_epochs: 200
+
+training_module:
+  optimization_parameters:
+    learning_rate : 0.00005
+    t_0: 4000
+  config:
+    registration:
+      _target_ : torchsisr.training.RegistrationParameters
+      registration_channel: 0
+      max_offset: 10.0
+      depth: 4
+      min_skip_depth: 2
+      nb_features: 64
+    pretrain_registration: True
+    align_min_max: False
+
+original_work_dir: ${location.output_folder}/registration/
+seed: 42
+name: ${datamodule.name}_max${training_module.config.registration.max_offset}_${training_module.config.registration.depth}x${training_module.config.registration.nb_features}

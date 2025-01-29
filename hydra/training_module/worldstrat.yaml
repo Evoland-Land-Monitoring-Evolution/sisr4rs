@@ -1,0 +1,50 @@
+optimization_parameters:
+    learning_rate : 0.0002
+    t_0 : 1500
+    t_mult : 2
+
+bands : ['B2', 'B3', 'B4', 'B8']
+
+standardization_parameters:
+  _target_ : torchsisr.training.StandardizationParameters
+  bands : ${training_module.bands}
+  mean: [0.1072, 0.1367, 0.1559, 0.2781]
+  std : [0.1442, 0.1412, 0.1514, 0.1341]
+
+batch_simulation_parameters:
+  _target_ : torchsisr.training.BatchSimulationParameters
+  mtf_min : 0.4
+  mtf_max : 0.4
+  noise_multiplier_min: 2.
+  noise_multiplier_max: 3.
+  noise_std: null
+
+config:
+  _target_ : torchsisr.training.DoubleSISRTrainingModuleConfig
+  model : ${model.model}
+  optimization: ${training_module.optimization_parameters}
+  standardization: ${training_module.standardization_parameters}
+  batch_simulation: ${training_module.batch_simulation_parameters}
+  adversarial: ${adversarial.parameters}
+  real_losses : ${losses.real_losses}
+  sim_losses : ${losses.sim_losses}
+  validation_metrics: ${metrics.validation_metrics}
+  test_metrics: ${metrics.test_metrics}
+  wald : null
+  validation_margin: 64
+  align_min_max: False
+  training_geometric_registration: False
+  training_radiometric_registration: False
+  testval_geometric_registration: False
+  testval_radiometric_registration: False
+  registration:
+    _target_ : torchsisr.training.RegistrationParameters
+    registration_channel: 2
+    max_offset: 20.0
+    depth: 4
+    min_skip_depth: 2
+    nb_features: 64
+
+training_module:
+  _target_ : torchsisr.training.DoubleSISRTrainingModule
+  config : ${training_module.config}

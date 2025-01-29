@@ -1,0 +1,32 @@
+name: 's2vfull'
+
+number_of_bands : 10
+
+single_site_config:
+  _target_ : torchsisr.dataset.Sen2VnsSingleSiteDatasetConfig
+  load_20m_data : True
+  load_10m_data : True
+  load_b11b12: True
+
+config:
+  _target_: torchsisr.dataset.Sen2VnsDataModuleConfig
+
+  dataset_folder: ${location.sen2venus_dataset_folder}
+
+  # Only sites with more than 2000 patches
+  sites : ['ARM','BAMBENW2', 'BENGA', 'ESGISB-2', 'ESGISB-1', 'ESGISB-3','ESTUAMAR', 'FR-BIL','FR-LAM','ALSACE','KUDALIAR','LERIDA-1', 'NARYN','SO1','SUDOUE-2','SUDOUE-3', 'SUDOUE-4','SUDOUE-6', 'JAM2018', 'SUDOUE-5']
+  testing_sites : ['FR-LQ1', 'ES-IC3XG', 'ANJI', 'MAD-AMBO', 'ATTO','ES-LTERA', 'SO2']
+  single_site_config: ${datamodule.single_site_config}
+  max_patches_per_site: 2000
+  batch_size: 16
+  testing_validation_batch_size : 64
+  validation_ratio : 0.05
+  train_ratio : 0.95
+  num_workers : 10
+  cache_validation_dataset : False
+  cache_testing_dataset : False
+  prefetch_factor : 4
+
+data_module:
+  _target_ : torchsisr.dataset.Sen2VnsDataModule
+  config : ${datamodule.config}

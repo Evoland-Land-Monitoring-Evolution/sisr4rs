@@ -1,0 +1,23 @@
+ # @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: venuss2_small_test.yaml
+  - override /model: double_carn.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+  - override /log_dir : default.yaml
+  - override /loggers: default.yaml
+
+
+name: test_carn_20
+
+datamodule:
+  load_10m_data: True
+  load_20m_data: True
+
+trainer:
+  accelerator: cpu
+  fast_dev_run: True

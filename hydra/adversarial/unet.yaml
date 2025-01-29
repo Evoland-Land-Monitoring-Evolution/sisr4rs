@@ -1,0 +1,19 @@
+discriminator:
+  _target_ : torchsisr.discriminator.UNetDiscriminatorSN
+  num_in_ch: 7
+  num_feat : 64
+  skip_connection: False
+
+optimization_parameters:
+  learning_rate : 0.000001
+  t_0 : 750
+  t_mult : 2
+
+parameters:
+  _target_ : torchsisr.training.AdversarialParameters
+  bands : ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8A']
+  discriminator: ${adversarial.discriminator}
+  optimization: ${adversarial.optimization_parameters}
+  starting_step_discriminator : 2000
+  starting_step_generator : 2000
+  weight: 0.01
